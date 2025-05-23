@@ -37,7 +37,9 @@ export default function App() {
   }
 
   return (
-    <Dashboard />
+    <Authenticator>
+      <Dashboard />
+    </Authenticator>
   )
     // <Flex
     //   className="App"
@@ -76,7 +78,7 @@ export default function App() {
     //       </Flex>
     //     ))}
     //   </Grid>
-    //   <Button onClick={signOut}>Sign Out</Button>
+      // <Button onClick={signOut}>Sign Out</Button>
     // </Flex>
   // );
 }
