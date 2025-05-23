@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MapPin, Award, Recycle, Trash2, Package, Coins, LogOut, User } from "lucide-react";
 
-// Rename the exported function to Dashboard
+// Rename exported function to Dashboard for clarity and import consistency
 export default function Dashboard() {
+  const mapRef = useRef(null);
+  const mapInstanceRef = useRef(null);
   const [userprofiles, setUserProfiles] = useState([
     { id: "1", email: "user@example.com", points: 1250, level: "Gold" }
   ]);
@@ -15,10 +17,105 @@ export default function Dashboard() {
     { type: "Electronic Waste", count: 12, points: 240, color: "#EF4444" }
   ]);
 
+  // Sample recycling centers in Uganda
+  const recyclingCenters = [
+    { id: 1, name: "Kampala Central Recycling Hub", lat: 0.3476, lng: 32.5825, type: "active", capacity: 85 },
+    { id: 2, name: "Entebbe Collection Point", lat: 0.0640, lng: 32.4598, type: "collection", capacity: 60 },
+    { id: 3, name: "Jinja Eco Center", lat: 0.4313, lng: 33.2030, type: "active", capacity: 92 },
+    { id: 4, name: "Mbarara Waste Hub", lat: -0.6076, lng: 30.6589, type: "full", capacity: 100 },
+    { id: 5, name: "Gulu Green Point", lat: 2.7856, lng: 32.2988, type: "collection", capacity: 45 },
+    { id: 6, name: "Fort Portal Recycling", lat: 0.6612, lng: 30.2731, type: "active", capacity: 70 }
+  ];
+
   const signOut = () => {
     console.log("Sign out clicked");
     alert("Sign out functionality - integrate with your auth system");
   };
+
+  // Initialize OpenStreetMap
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    // Load Leaflet CSS and JS
+    const loadLeaflet = async () => {
+      // Add Leaflet CSS
+      if (!document.querySelector('link[href*="leaflet"]')) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+        document.head.appendChild(link);
+      }
+
+      // Load Leaflet JS
+      if (!window.L) {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+      }
+
+      // Initialize map centered on Uganda
+      if (window.L && !mapInstanceRef.current) {
+        const map = window.L.map(mapRef.current, {
+          center: [1.3733, 32.2903], // Center of Uganda
+          zoom: 7,
+          zoomControl: true,
+          scrollWheelZoom: true
+        });
+
+        // Add OpenStreetMap tiles
+        window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors',
+          maxZoom: 19
+        }).addTo(map);
+
+        // Add recycling center markers
+        recyclingCenters.forEach(center => {
+          const color = center.type === 'active' ? '#10B981' : 
+                       center.type === 'collection' ? '#F59E0B' : '#EF4444';
+          
+          const marker = window.L.circleMarker([center.lat, center.lng], {
+            radius: 8,
+            fillColor: color,
+            color: 'white',
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.8
+          }).addTo(map);
+
+          // Add popup with center information
+          marker.bindPopup(`
+            <div style="font-family: system-ui, sans-serif;">
+              <h4 style="margin: 0 0 8px 0; color: #1e293b;">${center.name}</h4>
+              <p style="margin: 0; color: #64748b; font-size: 0.875rem;">
+                Status: <span style="color: ${color}; font-weight: bold;">
+                  ${center.type.charAt(0).toUpperCase() + center.type.slice(1)}
+                </span>
+              </p>
+              <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.875rem;">
+                Capacity: ${center.capacity}%
+              </p>
+            </div>
+          `);
+        });
+
+        mapInstanceRef.current = map;
+      }
+    };
+
+    loadLeaflet().catch(console.error);
+
+    // Cleanup function
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     // Simulate fetching user profile data
@@ -127,15 +224,9 @@ export default function Dashboard() {
     },
     mapContainer: {
       height: "400px",
-      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
       borderRadius: "8px",
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "center",
-      alignItems: "center",
-      color: "white",
-      textAlign: "center",
-      position: "relative"
+      border: "1px solid #e2e8f0",
+      backgroundColor: "#f8fafc"
     },
     mapTitle: {
       fontSize: "1.25rem",
@@ -326,35 +417,29 @@ export default function Dashboard() {
         </div>
 
         {/* Main Content Grid */}
-        <div style={{...styles.mainGrid, gridTemplateColumns: window.innerWidth < 1024 ? "1fr" : "2fr 1fr"}}>
+        <div style={{...styles.mainGrid, gridTemplateColumns: typeof window !== "undefined" && window.innerWidth < 1024 ? "1fr" : "2fr 1fr"}}>
           {/* Map Section */}
           <div style={styles.mapCard}>
             <div style={styles.mapHeader}>
               <MapPin size={24} color="#3B82F6" />
               <h3 style={{margin: 0, color: "#1e293b"}}>Uganda Recycling Centers</h3>
             </div>
-            <div style={styles.mapContainer}>
-              <MapPin size={48} style={{ marginBottom: "1rem" }} />
-              <h4 style={styles.mapTitle}>Uganda Map View</h4>
-              <p style={styles.mapSubtitle}>Recycling centers and collection points</p>
-              
-              {/* Mock location markers */}
-              <div style={{...styles.marker, top: "30%", left: "40%", backgroundColor: "#10B981"}} />
-              <div style={{...styles.marker, top: "60%", left: "55%", backgroundColor: "#F59E0B"}} />
-              <div style={{...styles.marker, top: "45%", left: "65%", backgroundColor: "#EF4444"}} />
-            </div>
+            <div 
+              ref={mapRef} 
+              style={styles.mapContainer}
+            />
             <div style={styles.legend}>
               <div style={styles.legendItem}>
                 <div style={{...styles.legendDot, backgroundColor: "#10B981"}} />
-                <span style={{fontSize: "0.875rem"}}>Active Centers</span>
+                <span style={{fontSize: "0.875rem"}}>Active Centers ({recyclingCenters.filter(c => c.type === 'active').length})</span>
               </div>
               <div style={styles.legendItem}>
                 <div style={{...styles.legendDot, backgroundColor: "#F59E0B"}} />
-                <span style={{fontSize: "0.875rem"}}>Collection Points</span>
+                <span style={{fontSize: "0.875rem"}}>Collection Points ({recyclingCenters.filter(c => c.type === 'collection').length})</span>
               </div>
               <div style={styles.legendItem}>
                 <div style={{...styles.legendDot, backgroundColor: "#EF4444"}} />
-                <span style={{fontSize: "0.875rem"}}>Full Capacity</span>
+                <span style={{fontSize: "0.875rem"}}>Full Capacity ({recyclingCenters.filter(c => c.type === 'full').length})</span>
               </div>
             </div>
           </div>
