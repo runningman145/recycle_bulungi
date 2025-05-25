@@ -12,19 +12,24 @@ import { Amplify } from "aws-amplify";
 import "@aws-amplify/ui-react/styles.css";
 import { generateClient } from "aws-amplify/data";
 import outputs from "../amplify_outputs.json";
+
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+
 /**
  * @type {import('aws-amplify/data').Client<import('../amplify/data/resource').Schema>}
  */
-
-
 Amplify.configure(outputs);
-const client = generateClient({
-  authMode: "userPool",
-});
+const client = generateClient({ authMode: "userPool" });
+
+const recyclingCenters = [
+  { lat: 40.7128, lng: -74.006, name: "Center A - Manhattan" },
+  { lat: 40.7306, lng: -73.9352, name: "Center B - Brooklyn" },
+];
 
 export default function App() {
   const [userprofiles, setUserProfiles] = useState([]);
-  const { signOut } = useAuthenticator((context) => [context.user]);
+  const { signOut, user } = useAuthenticator((context) => [context.user]);
 
   useEffect(() => {
     fetchUserProfile();
@@ -35,138 +40,111 @@ export default function App() {
     setUserProfiles(profiles);
   }
 
-  return (
-    <div
-      style={{
-        backgroundColor: "#f8fafc",
-        minHeight: "100vh",
-        padding: "1rem",
-        fontFamily: "system-ui, -apple-system, sans-serif",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-          width: "100%",
-        }}
-      >
-        {/* Header */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "2rem",
-            flexWrap: "wrap",
-            gap: "1rem",
-          }}
-        >
-          <h1
-            style={{
-              fontSize: "2rem",
-              fontWeight: "bold",
-              color: "#1e293b",
-              margin: 0,
-            }}
-          >
-            Recycle Bulungi
-          </h1>
-          <button
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              padding: "0.75rem 1.5rem",
-              backgroundColor: "white",
-              border: "2px solid #e2e8f0",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontSize: "0.875rem",
-              fontWeight: "500",
-              color: "#374151",
-              transition: "all 0.2s",
-            }}
-            onClick={signOut}
-          >
-            Sign Out
-          </button>
-        </div>
+  const currentUser = userprofiles.find(
+    (u) => u.email === user?.attributes?.email
+  );
 
-        {/* Profile Section */}
-        <div
-          style={{
-            backgroundColor: "white",
-            padding: "1.5rem",
-            borderRadius: "12px",
-            boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-            border: "1px solid #e2e8f0",
-            marginBottom: "2rem",
-          }}
-        >
-          <h3
-            style={{
-              color: "#1e293b",
-              marginBottom: "1rem",
-            }}
+  return (
+    <Flex direction="row" height="100vh" overflow="hidden">
+      {/* Sidebar */}
+      <View
+        width="20%"
+        padding="2rem"
+        backgroundColor="#f5f5f5"
+        borderRight="1px solid #ddd"
+      >
+        <Heading level={3}>Eco Dashboard</Heading>
+        <Divider margin="1rem 0" />
+        <Heading level={5}>Hello, {user?.username}</Heading>
+        <Button onClick={signOut} variation="link" marginTop="2rem">
+          Sign Out
+        </Button>
+      </View>
+
+      {/* Main Dashboard */}
+      <View width="80%" padding="3rem" overflow="auto">
+        <Heading level={2}>Sustainability Dashboard</Heading>
+        <Divider margin="1rem 0" />
+
+        {/* Grid with Rewards + Profile Info */}
+        <Grid templateColumns="repeat(3, 1fr)" gap="2rem" marginTop="2rem">
+          {/* Total Users */}
+          <Flex
+            direction="column"
+            padding="1.5rem"
+            backgroundColor="#ffffff"
+            boxShadow="0 2px 8px rgba(0,0,0,0.05)"
+            borderRadius="12px"
           >
-            Profile Information
-          </h3>
-          {userprofiles.length > 0 ? (
-            userprofiles.map((userprofile) => (
-              <div
-                key={userprofile.id || userprofile.email}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "1rem",
-                  padding: "1rem",
-                  backgroundColor: "#f8fafc",
-                  borderRadius: "8px",
-                  marginBottom: "1rem",
-                }}
-              >
-                <div
-                  style={{
-                    width: "50px",
-                    height: "50px",
-                    backgroundColor: "#3B82F6",
-                    borderRadius: "50%",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    color: "white",
-                    fontSize: "1.25rem",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {userprofile.email?.charAt(0).toUpperCase() || "U"}
-                </div>
-                <div>
-                  <div
-                    style={{
-                      fontWeight: "bold",
-                      color: "#1e293b",
-                    }}
-                  >
-                    {userprofile.email}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "0.875rem",
-                      color: "#64748b",
-                    }}
-                  >
-                    Active Recycler
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div style={{ color: "#64748b" }}>No profiles found.</div>
-          )}
-        </div>
-      </div>
-    </div>
+            <Heading level={4}>Total Users</Heading>
+            <View fontSize="2rem">{userprofiles.length}</View>
+          </Flex>
+
+          {/* Rewards */}
+          <Flex
+            direction="column"
+            padding="1.5rem"
+            backgroundColor="#ffffff"
+            boxShadow="0 2px 8px rgba(0,0,0,0.05)"
+            borderRadius="12px"
+          >
+            <Heading level={4}>Your Recycling Points</Heading>
+            <View fontSize="2rem">{currentUser?.rewards || 0} pts</View>
+          </Flex>
+
+          {/* Recent User */}
+          <Flex
+            direction="column"
+            padding="1.5rem"
+            backgroundColor="#ffffff"
+            boxShadow="0 2px 8px rgba(0,0,0,0.05)"
+            borderRadius="12px"
+          >
+            <Heading level={4}>Recent User</Heading>
+            <View fontSize="1.3rem">
+              {userprofiles[0]?.email || "No users available"}
+            </View>
+          </Flex>
+        </Grid>
+
+        {/* Map */}
+        <View marginTop="3rem">
+          <Heading level={3}>Nearby Recycling Centers</Heading>
+          <MapContainer
+            center={[40.7128, -74.006]}
+            zoom={12}
+            style={{ height: "300px", width: "100%", marginTop: "1rem" }}
+          >
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            {recyclingCenters.map((center, index) => (
+              <Marker key={index} position={[center.lat, center.lng]}>
+                <Popup>{center.name}</Popup>
+              </Marker>
+            ))}
+          </MapContainer>
+        </View>
+
+        {/* Material Separation */}
+        <View marginTop="3rem">
+          <Heading level={3}>Material Separation Guide</Heading>
+          <Flex direction="column" gap="1rem" marginTop="1rem">
+            <View backgroundColor="#eef" padding="1rem" borderRadius="8px">
+              <strong>Plastics:</strong> Rinse and remove labels. Sort by number
+              (1–7).
+            </View>
+            <View backgroundColor="#efe" padding="1rem" borderRadius="8px">
+              <strong>Glass:</strong> Separate by color. Avoid ceramics and
+              mirrors.
+            </View>
+            <View backgroundColor="#fee" padding="1rem" borderRadius="8px">
+              <strong>Metal:</strong> Rinse cans and flatten if possible.
+            </View>
+            <View backgroundColor="#eef" padding="1rem" borderRadius="8px">
+              <strong>Paper/Cardboard:</strong> Keep dry. Remove food residue.
+            </View>
+          </Flex>
+        </View>
+      </View>
+    </Flex>
   );
 }
