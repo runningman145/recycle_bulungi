@@ -265,7 +265,7 @@ export default function App() {
           onClick={signOut} 
           variation="primary"
           backgroundColor="rgba(255,255,255,0.2)"
-          color="white"
+          color="green"
           border="1px solid rgba(255,255,255,0.3)"
           borderRadius="8px"
           width="100%"
