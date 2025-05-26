@@ -22,6 +22,7 @@ import "leaflet/dist/leaflet.css";
 Amplify.configure(outputs);
 const client = generateClient({ authMode: "userPool" });
 
+// use Ugandan recycling centers as an example
 const recyclingCenters = [
   { lat: 40.7128, lng: -74.006, name: "Center A - Manhattan" },
   { lat: 40.7306, lng: -73.9352, name: "Center B - Brooklyn" },
