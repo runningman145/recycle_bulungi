@@ -229,34 +229,34 @@ export default function App() {
 
   return (
     <Flex direction="row" height="100vh" overflow="hidden">
-      {/* Enhanced Sidebar */}
+      {/* Eco-friendly Sidebar */}
       <View
         width="20%"
         padding="2rem"
-        backgroundColor="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-        color="white"
+        backgroundColor="#14532d" // Deep green
+        color="#f0fdf4"           // Very light green for text
         borderRight="none"
-        boxShadow="4px 0 20px rgba(0,0,0,0.1)"
+        boxShadow="4px 0 20px rgba(0,0,0,0.08)"
       >
         <Flex alignItems="center" marginBottom="2rem">
-          <Recycle size={32} style={{ marginRight: '0.75rem' }} />
-          <Heading level={3} color="green" margin="0">
+          <Recycle size={32} color="#bbf7d0" style={{ marginRight: '0.75rem' }} />
+          <Heading level={3} color="#bbf7d0" margin="0">
             Recycle Bulungi Dashboard
           </Heading>
         </Flex>
         
-        <Divider margin="1rem 0" backgroundColor="rgba(255,255,255,0.2)" />
+        <Divider margin="1rem 0" backgroundColor="rgba(187,247,208,0.2)" />
         
         <View
-          backgroundColor="rgba(255,255,255,0.1)"
+          backgroundColor="rgba(22,163,74,0.15)" // Soft green overlay
           borderRadius="12px"
           padding="1rem"
           marginBottom="2rem"
         >
-          <Heading level={5} color="green" margin="0 0 0.5rem 0">
+          <Heading level={5} color="#bbf7d0" margin="0 0 0.5rem 0">
             Welcome back,
           </Heading>
-          <View fontSize="1.1rem" fontWeight="600" color="green">
+          <View fontSize="1.1rem" fontWeight="600" color="#bbf7d0">
             {user?.username || 'User'}
           </View>
         </View>
@@ -264,14 +264,14 @@ export default function App() {
         <Button 
           onClick={signOut} 
           variation="primary"
-          backgroundColor="rgba(255,255,255,0.2)"
-          color="green"
-          border="1px solid rgba(255,255,255,0.3)"
+          backgroundColor="#22c55e" // Green button
+          color="#14532d"
+          border="none"
           borderRadius="8px"
           width="100%"
           style={{
             '&:hover': {
-              backgroundColor: 'rgba(255,255,255,0.3)'
+              backgroundColor: '#16a34a'
             }
           }}
         >
