@@ -240,7 +240,7 @@ export default function App() {
       >
         <Flex alignItems="center" marginBottom="2rem">
           <Recycle size={32} style={{ marginRight: '0.75rem' }} />
-          <Heading level={3} color="white" margin="0">
+          <Heading level={3} color="green" margin="0">
             Recycle Bulungi Dashboard
           </Heading>
         </Flex>
@@ -253,10 +253,10 @@ export default function App() {
           padding="1rem"
           marginBottom="2rem"
         >
-          <Heading level={5} color="white" margin="0 0 0.5rem 0">
+          <Heading level={5} color="green" margin="0 0 0.5rem 0">
             Welcome back,
           </Heading>
-          <View fontSize="1.1rem" fontWeight="600" color="white">
+          <View fontSize="1.1rem" fontWeight="600" color="green">
             {user?.username || 'User'}
           </View>
         </View>
