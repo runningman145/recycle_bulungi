@@ -23,10 +23,19 @@ Amplify.configure(outputs);
 const client = generateClient({ authMode: "userPool" });
 
 // use Ugandan recycling centers as an example
+// const recyclingCenters = [
+//   { lat: 40.7128, lng: -74.006, name: "Center A - Manhattan" },
+//   { lat: 40.7306, lng: -73.9352, name: "Center B - Brooklyn" },
+// ];
+
 const recyclingCenters = [
-  { lat: 40.7128, lng: -74.006, name: "Center A - Manhattan" },
-  { lat: 40.7306, lng: -73.9352, name: "Center B - Brooklyn" },
-];
+    { id: 1, name: "Kampala Central Recycling Hub", lat: 0.3476, lng: 32.5825, type: "active", capacity: 85 },
+    { id: 2, name: "Entebbe Collection Point", lat: 0.0640, lng: 32.4598, type: "collection", capacity: 60 },
+    { id: 3, name: "Jinja Eco Center", lat: 0.4313, lng: 33.2030, type: "active", capacity: 92 },
+    { id: 4, name: "Mbarara Waste Hub", lat: -0.6076, lng: 30.6589, type: "full", capacity: 100 },
+    { id: 5, name: "Gulu Green Point", lat: 2.7856, lng: 32.2988, type: "collection", capacity: 45 },
+    { id: 6, name: "Fort Portal Recycling", lat: 0.6612, lng: 30.2731, type: "active", capacity: 70 }
+  ];
 
 export default function App() {
   const [userprofiles, setUserProfiles] = useState([]);
@@ -112,8 +121,8 @@ export default function App() {
         <View marginTop="3rem">
           <Heading level={3}>Nearby Recycling Centers</Heading>
           <MapContainer
-            center={[40.7128, -74.006]}
-            zoom={12}
+            center={[0.3476, 32.5825]} // Centered on Kampala
+            zoom={7}
             style={{ height: "300px", width: "100%", marginTop: "1rem" }}
           >
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
